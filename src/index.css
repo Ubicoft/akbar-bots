@@ -694,6 +694,19 @@ img {
   opacity: 0;
   transform: translateY(22px);
   animation: rise-in 0.9s var(--ease) forwards;
+  animation-fill-mode: both;
+}
+
+/* Ensure content stays readable if animation is interrupted */
+@media (min-width: 0) {
+  .hero-enter.is-settled .hero-brand,
+  .hero-enter.is-settled .hero-offer,
+  .hero-enter.is-settled .hero-support,
+  .hero-enter.is-settled .cta-row,
+  .hero-enter.is-settled .chat-shell {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .hero-enter .hero-brand {

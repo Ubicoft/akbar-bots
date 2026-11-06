@@ -44,6 +44,13 @@ export default function App() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      document.querySelector('.hero-enter')?.classList.add('is-settled')
+    }, 1600)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   const setLanguage = (code: Lang) => {
     setLang(code)
     setMenuOpen(false)
