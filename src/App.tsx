@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react'
 import { LANGS, copy, type Lang } from './i18n'
 import { THEMES, THEME_STORAGE_KEY, type ThemeId } from './themes'
+import { getDemoScripts } from './demos'
+import { pricingByLang } from './pricing'
+import { faqByLang } from './faq'
 import { useReveal } from './hooks/useReveal'
 import { LivingBg } from './components/LivingBg'
 import { CustomCursor } from './components/CustomCursor'
+import { DemoChat } from './components/DemoChat'
+import { FaqList } from './components/FaqList'
 
 const LANG_KEY = 'akbar-portfolio-lang'
 
@@ -30,6 +35,9 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const t = copy[lang]
+  const demos = getDemoScripts(lang)
+  const pricing = pricingByLang[lang]
+  const faq = faqByLang[lang]
 
   useEffect(() => {
     const savedLang = localStorage.getItem(LANG_KEY) as Lang | null
@@ -106,6 +114,7 @@ export default function App() {
             <a href="#demos">{t.nav.demos}</a>
             <a href="#process">{t.nav.process}</a>
             <a href="#pricing">{t.nav.pricing}</a>
+            <a href="#faq">{t.nav.faq}</a>
             <a href="#contact">{t.nav.contact}</a>
           </nav>
 
@@ -176,6 +185,9 @@ export default function App() {
             <a href="#pricing" onClick={closeMenu}>
               {t.nav.pricing}
             </a>
+            <a href="#faq" onClick={closeMenu}>
+              {t.nav.faq}
+            </a>
             <a href="#contact" onClick={closeMenu}>
               {t.nav.contact}
             </a>
@@ -243,27 +255,15 @@ export default function App() {
               <p>{t.demos.lead}</p>
             </div>
             <div className="demos-stack">
-              {t.demos.items.map((item, i) => (
-                <article key={item.title} className={`demo-feature demo-${i + 1}`}>
+              {demos.map((item, i) => (
+                <article key={item.id} className={`demo-feature demo-${i + 1}`}>
                   <div className="demo-copy">
                     <span className="demo-for">{item.for}</span>
                     <h3>{item.title}</h3>
                     <p>{item.text}</p>
                     <p className="demo-help">{item.help}</p>
                   </div>
-                  <div className="demo-stage" aria-hidden="true">
-                    <div className="stage-window">
-                      <span />
-                      <span />
-                      <span />
-                    </div>
-                    <div className="stage-lines">
-                      <i />
-                      <i />
-                      <i />
-                      <i className="short" />
-                    </div>
-                  </div>
+                  <DemoChat script={item} />
                 </article>
               ))}
             </div>
@@ -293,11 +293,11 @@ export default function App() {
         <Reveal id="pricing" className="section-pricing">
           <div className="wrap">
             <div className="section-head split-head">
-              <h2>{t.pricing.title}</h2>
-              <p>{t.pricing.lead}</p>
+              <h2>{pricing.title}</h2>
+              <p>{pricing.lead}</p>
             </div>
             <div className="pricing-row">
-              {t.pricing.packs.map((pack, index) => (
+              {pricing.packs.map((pack, index) => (
                 <article
                   key={pack.name}
                   className={`price-panel${index === 1 ? ' is-featured' : ''}`}
@@ -313,7 +313,17 @@ export default function App() {
                 </article>
               ))}
             </div>
-            <p className="pricing-note">{t.pricing.note}</p>
+            <p className="pricing-note">{pricing.note}</p>
+          </div>
+        </Reveal>
+
+        <Reveal id="faq" className="section-faq">
+          <div className="wrap">
+            <div className="section-head split-head">
+              <h2>{faq.title}</h2>
+              <p>{faq.lead}</p>
+            </div>
+            <FaqList items={faq.items} />
           </div>
         </Reveal>
 

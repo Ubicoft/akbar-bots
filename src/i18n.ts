@@ -7,7 +7,14 @@ export const LANGS: { code: Lang; label: string }[] = [
 ]
 
 type Dict = {
-  nav: { services: string; demos: string; process: string; pricing: string; contact: string }
+  nav: {
+    services: string
+    demos: string
+    process: string
+    pricing: string
+    faq: string
+    contact: string
+  }
   hero: { brand: string; offer: string; support: string; cta: string; secondary: string }
   services: { title: string; lead: string; items: { title: string; text: string }[] }
   demos: {
@@ -41,6 +48,7 @@ export const copy: Record<Lang, Dict> = {
       demos: 'Примеры',
       process: 'Как работаем',
       pricing: 'Цены',
+      faq: 'FAQ',
       contact: 'Контакты',
     },
     hero: {
@@ -148,6 +156,7 @@ export const copy: Record<Lang, Dict> = {
       demos: 'Намунаҳо',
       process: 'Чӣ гуна кор',
       pricing: 'Нархҳо',
+      faq: 'Саволҳо',
       contact: 'Тамос',
     },
     hero: {
@@ -255,6 +264,7 @@ export const copy: Record<Lang, Dict> = {
       demos: 'Examples',
       process: 'How it works',
       pricing: 'Pricing',
+      faq: 'FAQ',
       contact: 'Contact',
     },
     hero: {
