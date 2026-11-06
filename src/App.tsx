@@ -77,6 +77,9 @@ export default function App() {
 
   const closeMenu = () => setMenuOpen(false)
 
+  const yourBot =
+    lang === 'en' ? 'Your bot' : lang === 'tg' ? 'Боти шумо' : 'Ваш бот'
+
   const chat = {
     hello:
       lang === 'en'
@@ -103,20 +106,13 @@ export default function App() {
       <LivingBg />
       <CustomCursor />
 
-      <header className={`site-header${scrolled ? ' is-scrolled' : ''}`}>
-        <div className="wrap header-inner">
+      <header className={`site-header${scrolled ? ' is-scrolled' : ''}${menuOpen ? ' is-open' : ''}`}>
+        <div className="island-bar" role="banner">
           <a className="brand-mark" href="#top" onClick={closeMenu}>
             {t.hero.brand}
           </a>
 
-          <nav className="nav-desktop" aria-label="Primary">
-            <a href="#services">{t.nav.services}</a>
-            <a href="#demos">{t.nav.demos}</a>
-            <a href="#process">{t.nav.process}</a>
-            <a href="#pricing">{t.nav.pricing}</a>
-            <a href="#faq">{t.nav.faq}</a>
-            <a href="#contact">{t.nav.contact}</a>
-          </nav>
+          <div className="island-divider" aria-hidden="true" />
 
           <div className="header-actions">
             <div className="theme-switch" role="group" aria-label="Theme">
@@ -159,20 +155,7 @@ export default function App() {
         </div>
 
         {menuOpen ? (
-          <nav className="mobile-nav" aria-label="Mobile">
-            <div className="mobile-themes">
-              {THEMES.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`theme-chip${theme === item.id ? ' is-active' : ''}`}
-                  onClick={() => setTheme(item.id)}
-                >
-                  <i style={{ background: item.swatch }} />
-                  {item.label}
-                </button>
-              ))}
-            </div>
+          <nav className="island-nav" aria-label="Primary">
             <a href="#services" onClick={closeMenu}>
               {t.nav.services}
             </a>
@@ -218,7 +201,7 @@ export default function App() {
                 <div className="chat-top">
                   <div className="chat-avatar pulse-dot" />
                   <div className="chat-meta">
-                    <strong>Akbar Bot</strong>
+                    <strong>{yourBot}</strong>
                     <span>online</span>
                   </div>
                 </div>
@@ -263,7 +246,7 @@ export default function App() {
                     <p>{item.text}</p>
                     <p className="demo-help">{item.help}</p>
                   </div>
-                  <DemoChat script={item} />
+                  <DemoChat key={`${item.id}-${lang}`} script={item} />
                 </article>
               ))}
             </div>
