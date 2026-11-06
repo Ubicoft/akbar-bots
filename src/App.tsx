@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { LANGS, copy, type Lang } from './i18n'
+import { THEMES, THEME_STORAGE_KEY, type ThemeId } from './themes'
 import { useReveal } from './hooks/useReveal'
+import { LivingBg } from './components/LivingBg'
+import { CustomCursor } from './components/CustomCursor'
 
-const STORAGE_KEY = 'akbar-portfolio-lang'
+const LANG_KEY = 'akbar-portfolio-lang'
 
-function RevealSection({
+function Reveal({
   id,
   className = '',
   children,
@@ -16,26 +19,34 @@ function RevealSection({
   const ref = useReveal<HTMLElement>()
   return (
     <section id={id} ref={ref} className={`section reveal ${className}`.trim()}>
-      <div className="wrap">{children}</div>
+      {children}
     </section>
   )
 }
 
 export default function App() {
   const [lang, setLang] = useState<Lang>('ru')
+  const [theme, setTheme] = useState<ThemeId>('blue')
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const t = copy[lang]
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as Lang | null
-    if (saved && LANGS.some((l) => l.code === saved)) setLang(saved)
+    const savedLang = localStorage.getItem(LANG_KEY) as Lang | null
+    if (savedLang && LANGS.some((l) => l.code === savedLang)) setLang(savedLang)
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) as ThemeId | null
+    if (savedTheme && THEMES.some((th) => th.id === savedTheme)) setTheme(savedTheme)
   }, [])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, lang)
+    localStorage.setItem(LANG_KEY, lang)
     document.documentElement.lang = lang === 'tg' ? 'tg' : lang
   }, [lang])
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
+    document.documentElement.dataset.theme = theme
+  }, [theme])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -58,8 +69,32 @@ export default function App() {
 
   const closeMenu = () => setMenuOpen(false)
 
+  const chat = {
+    hello:
+      lang === 'en'
+        ? 'Hi! Want to book a time or place an order?'
+        : lang === 'tg'
+          ? 'Салом! Сабти ном ё фармоиш мехоҳед?'
+          : 'Здравствуйте! Записать вас или принять заказ?',
+    user:
+      lang === 'en'
+        ? 'Book for tomorrow, 15:00'
+        : lang === 'tg'
+          ? 'Барои фардо, соати 15:00'
+          : 'Запись на завтра, 15:00',
+    done:
+      lang === 'en'
+        ? 'Done. Reminder comes an hour before.'
+        : lang === 'tg'
+          ? 'Тайёр. Як соат пеш ёдрас мефиристам.'
+          : 'Готово. Напомню за час до визита.',
+  }
+
   return (
     <>
+      <LivingBg />
+      <CustomCursor />
+
       <header className={`site-header${scrolled ? ' is-scrolled' : ''}`}>
         <div className="wrap header-inner">
           <a className="brand-mark" href="#top" onClick={closeMenu}>
@@ -75,6 +110,20 @@ export default function App() {
           </nav>
 
           <div className="header-actions">
+            <div className="theme-switch" role="group" aria-label="Theme">
+              {THEMES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={theme === item.id ? 'is-active' : ''}
+                  title={item.label}
+                  aria-label={item.label}
+                  style={{ '--swatch': item.swatch } as React.CSSProperties}
+                  onClick={() => setTheme(item.id)}
+                />
+              ))}
+            </div>
+
             <div className="lang-switch" role="group" aria-label="Language">
               {LANGS.map((item) => (
                 <button
@@ -102,6 +151,19 @@ export default function App() {
 
         {menuOpen ? (
           <nav className="mobile-nav" aria-label="Mobile">
+            <div className="mobile-themes">
+              {THEMES.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`theme-chip${theme === item.id ? ' is-active' : ''}`}
+                  onClick={() => setTheme(item.id)}
+                >
+                  <i style={{ background: item.swatch }} />
+                  {item.label}
+                </button>
+              ))}
+            </div>
             <a href="#services" onClick={closeMenu}>
               {t.nav.services}
             </a>
@@ -125,6 +187,7 @@ export default function App() {
         <section className="hero hero-enter">
           <div className="wrap hero-grid">
             <div className="hero-copy">
+              <p className="hero-kicker">Telegram · hustle · night mode</p>
               <h1 className="hero-brand">{t.hero.brand}</h1>
               <p className="hero-offer">{t.hero.offer}</p>
               <p className="hero-support">{t.hero.support}</p>
@@ -139,120 +202,130 @@ export default function App() {
             </div>
 
             <div className="hero-visual" aria-hidden="true">
-              <div className="orb orb-a" />
-              <div className="orb orb-b" />
-              <div className="chat-shell">
+              <div className="chat-shell float-soft">
                 <div className="chat-top">
-                  <div className="chat-avatar" />
+                  <div className="chat-avatar pulse-dot" />
                   <div className="chat-meta">
                     <strong>Akbar Bot</strong>
                     <span>online</span>
                   </div>
                 </div>
-                <div className="bubble bubble-bot">
-                  {lang === 'en'
-                    ? 'Hi! Want to book a time or place an order?'
-                    : lang === 'tg'
-                      ? 'Салом! Сабти ном ё фармоиш мехоҳед?'
-                      : 'Здравствуйте! Записать вас или принять заказ?'}
-                </div>
-                <div className="bubble bubble-user">
-                  {lang === 'en'
-                    ? 'Book for tomorrow, 15:00'
-                    : lang === 'tg'
-                      ? 'Барои фардо, соати 15:00'
-                      : 'Запись на завтра, 15:00'}
-                </div>
-                <div className="bubble bubble-bot">
-                  {lang === 'en'
-                    ? 'Done. Reminder comes an hour before.'
-                    : lang === 'tg'
-                      ? 'Тайёр. Як соат пеш ёдрас мефиристам.'
-                      : 'Готово. Напомню за час до визита.'}
-                </div>
+                <div className="bubble bubble-bot">{chat.hello}</div>
+                <div className="bubble bubble-user">{chat.user}</div>
+                <div className="bubble bubble-bot">{chat.done}</div>
               </div>
             </div>
           </div>
         </section>
 
-        <RevealSection id="services">
-          <div className="section-head">
-            <h2>{t.services.title}</h2>
-            <p>{t.services.lead}</p>
+        <Reveal id="services" className="section-services">
+          <div className="wrap">
+            <div className="section-head split-head">
+              <h2>{t.services.title}</h2>
+              <p>{t.services.lead}</p>
+            </div>
+            <div className="services-bento">
+              {t.services.items.map((item, i) => (
+                <article key={item.title} className={`service-tile tile-${i + 1}`}>
+                  <span className="tile-index">0{i + 1}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="services-list">
-            {t.services.items.map((item) => (
-              <article key={item.title} className="service-item">
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-              </article>
-            ))}
-          </div>
-        </RevealSection>
+        </Reveal>
 
-        <RevealSection id="demos">
-          <div className="section-head">
-            <h2>{t.demos.title}</h2>
-            <p>{t.demos.lead}</p>
+        <Reveal id="demos" className="section-demos">
+          <div className="wrap">
+            <div className="section-head">
+              <h2>{t.demos.title}</h2>
+              <p>{t.demos.lead}</p>
+            </div>
+            <div className="demos-stack">
+              {t.demos.items.map((item, i) => (
+                <article key={item.title} className={`demo-feature demo-${i + 1}`}>
+                  <div className="demo-copy">
+                    <span className="demo-for">{item.for}</span>
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                    <p className="demo-help">{item.help}</p>
+                  </div>
+                  <div className="demo-stage" aria-hidden="true">
+                    <div className="stage-window">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                    <div className="stage-lines">
+                      <i />
+                      <i />
+                      <i />
+                      <i className="short" />
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="demos-grid">
-            {t.demos.items.map((item) => (
-              <article key={item.title} className="demo-panel">
-                <span className="demo-for">{item.for}</span>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
-                <p className="demo-help">{item.help}</p>
-              </article>
-            ))}
-          </div>
-        </RevealSection>
+        </Reveal>
 
-        <RevealSection id="process">
-          <div className="section-head">
-            <h2>{t.process.title}</h2>
-            <p>{t.process.lead}</p>
+        <Reveal id="process" className="section-process">
+          <div className="wrap">
+            <div className="section-head">
+              <h2>{t.process.title}</h2>
+              <p>{t.process.lead}</p>
+            </div>
+            <ol className="process-rail">
+              {t.process.steps.map((step, i) => (
+                <li key={step.title} className="process-node">
+                  <span className="node-num">{i + 1}</span>
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
-          <div className="process-track">
-            {t.process.steps.map((step) => (
-              <article key={step.title} className="process-step">
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
-              </article>
-            ))}
-          </div>
-        </RevealSection>
+        </Reveal>
 
-        <RevealSection id="pricing">
-          <div className="section-head">
-            <h2>{t.pricing.title}</h2>
-            <p>{t.pricing.lead}</p>
+        <Reveal id="pricing" className="section-pricing">
+          <div className="wrap">
+            <div className="section-head split-head">
+              <h2>{t.pricing.title}</h2>
+              <p>{t.pricing.lead}</p>
+            </div>
+            <div className="pricing-row">
+              {t.pricing.packs.map((pack, index) => (
+                <article
+                  key={pack.name}
+                  className={`price-panel${index === 1 ? ' is-featured' : ''}`}
+                >
+                  <h3>{pack.name}</h3>
+                  <p className="price-value">{pack.price}</p>
+                  <p>{pack.text}</p>
+                  <ul>
+                    {pack.features.map((feature) => (
+                      <li key={feature}>{feature}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+            <p className="pricing-note">{t.pricing.note}</p>
           </div>
-          <div className="pricing-grid">
-            {t.pricing.packs.map((pack, index) => (
-              <article
-                key={pack.name}
-                className={`price-panel${index === 1 ? ' is-featured' : ''}`}
-              >
-                <h3>{pack.name}</h3>
-                <p className="price-value">{pack.price}</p>
-                <p>{pack.text}</p>
-                <ul>
-                  {pack.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-          <p className="pricing-note">{t.pricing.note}</p>
-        </RevealSection>
+        </Reveal>
 
-        <RevealSection id="contact">
-          <div className="section-head">
-            <h2>{t.contact.title}</h2>
-            <p>{t.contact.lead}</p>
-          </div>
-          <div className="contact-block">
+        <Reveal id="contact" className="section-contact">
+          <div className="wrap contact-band">
+            <div className="contact-copy">
+              <h2>{t.contact.title}</h2>
+              <p>{t.contact.lead}</p>
+              <a className="btn btn-primary" href="https://t.me/" target="_blank" rel="noreferrer">
+                {t.contact.cta}
+              </a>
+            </div>
             <div className="contact-list">
               <div className="contact-item">
                 <span>{t.contact.telegram}</span>
@@ -263,13 +336,8 @@ export default function App() {
                 <strong>{t.contact.emailValue}</strong>
               </div>
             </div>
-            <div>
-              <a className="btn btn-primary" href="https://t.me/" target="_blank" rel="noreferrer">
-                {t.contact.cta}
-              </a>
-            </div>
           </div>
-        </RevealSection>
+        </Reveal>
       </main>
 
       <footer className="site-footer">

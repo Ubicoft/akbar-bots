@@ -2,7 +2,7 @@ export type Lang = 'ru' | 'tg' | 'en'
 
 export const LANGS: { code: Lang; label: string }[] = [
   { code: 'ru', label: 'RU' },
-  { code: 'tg', label: 'TG' },
+  { code: 'tg', label: 'TJ' },
   { code: 'en', label: 'EN' },
 ]
 
