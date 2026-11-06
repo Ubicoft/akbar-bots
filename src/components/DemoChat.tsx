@@ -24,7 +24,7 @@ export function DemoChat({ script }: { script: DemoScript }) {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-  }, [msgs, stepId])
+  }, [msgs, stepId, busy])
 
   const onChoice = async (choiceId: string, label: string) => {
     if (busy || !step?.next) return
@@ -53,6 +53,8 @@ export function DemoChat({ script }: { script: DemoScript }) {
     setBusy(false)
   }
 
+  const showChoices = Boolean(step?.choices) && !step?.end && !busy
+
   return (
     <div className="demo-chat">
       <div className="demo-chat-top">
@@ -72,12 +74,19 @@ export function DemoChat({ script }: { script: DemoScript }) {
             {msg.text}
           </div>
         ))}
+        {busy ? (
+          <div className="bubble bubble-bot is-typing" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+        ) : null}
         <div ref={endRef} />
       </div>
 
       <div className="demo-chat-actions">
-        {step?.choices && !step.end ? (
-          step.choices.map((c) => (
+        {showChoices ? (
+          step!.choices!.map((c) => (
             <button
               key={c.id}
               type="button"
@@ -89,9 +98,9 @@ export function DemoChat({ script }: { script: DemoScript }) {
             </button>
           ))
         ) : (
-          <p className="demo-chat-hint">{script.hint}</p>
+          <p className="demo-chat-hint">{busy ? '…' : script.hint}</p>
         )}
-        {step?.end ? (
+        {step?.end && !busy ? (
           <button type="button" className="demo-choice is-ghost" onClick={restart}>
             {script.restart}
           </button>
